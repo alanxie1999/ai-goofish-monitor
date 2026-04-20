@@ -10,6 +10,10 @@ from typing import Awaitable, Callable, Optional
 
 from src.keyword_rule_engine import build_search_text, evaluate_keyword_rules
 from src.services.auto_order_service import AutoOrderService
+from src.services.seller_active_service import (
+    format_active_time,
+    get_active_level,
+)
 
 
 SellerLoader = Callable[[str], Awaitable[dict]]
@@ -31,6 +35,8 @@ class ItemAnalysisJob:
     seller_id: Optional[str]
     zhima_credit_text: Optional[str]
     registration_duration_text: str
+    seller_last_active_time: Optional[str] = None
+    seller_online_status: Optional[str] = None
 
 
 class ItemAnalysisDispatcher:
@@ -99,9 +105,19 @@ class ItemAnalysisDispatcher:
                 seller_info = await self._seller_loader(job.seller_id)
             except Exception as exc:
                 print(f"   [卖家] 采集卖家 {job.seller_id} 信息失败：{exc}")
+        
         merged = copy.deepcopy(seller_info or {})
         merged["卖家芝麻信用"] = job.zhima_credit_text
         merged["卖家注册时长"] = job.registration_duration_text
+        
+        # 添加活跃时间信息
+        if job.seller_last_active_time:
+            merged["卖家最后活跃时间"] = job.seller_last_active_time
+            merged["卖家活跃时间格式化"] = format_active_time(job.seller_last_active_time)
+            merged["卖家活跃等级"] = get_active_level(job.seller_last_active_time)
+        if job.seller_online_status:
+            merged["卖家在线状态"] = job.seller_online_status
+        
         return merged
 
     async def _build_analysis_result(self, job: ItemAnalysisJob, record: dict) -> dict:

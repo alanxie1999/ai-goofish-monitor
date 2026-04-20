@@ -1041,6 +1041,17 @@ async def scrape_xianyu(task_config: dict, debug_limit: int = 0):
                                     seller_do, "zhimaLevelInfo", "levelName"
                                 )
 
+                                # 1.5 提取卖家的活跃时间信息
+                                seller_last_active_time = await safe_get(
+                                    seller_do, "lastActiveTime"
+                                )
+                                seller_online_status = await safe_get(
+                                    seller_do, "onlineStatus"
+                                )
+                                seller_active_type = await safe_get(
+                                    seller_do, "activeType"
+                                )
+
                                 # 2. 提取该商品的完整图片列表
                                 image_infos = await safe_get(
                                     item_do, "imageInfos", default=[]
@@ -1106,6 +1117,8 @@ async def scrape_xianyu(task_config: dict, debug_limit: int = 0):
                                         seller_id=str(user_id) if user_id else None,
                                         zhima_credit_text=zhima_credit_text,
                                         registration_duration_text=registration_duration_text,
+                                        seller_last_active_time=seller_last_active_time,
+                                        seller_online_status=seller_online_status,
                                     )
                                 )
 

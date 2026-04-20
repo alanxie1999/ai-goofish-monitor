@@ -484,6 +484,26 @@ function handleSubmit() {
         </div>
       </div>
       <div class="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4">
+      <div class="grid gap-2 sm:grid-cols-4 sm:items-center sm:gap-4 border-t pt-4 mt-2">
+        <Label class="sm:text-right font-semibold">{{ t('tasks.form.sellerActive.title') }}</Label>
+        <div class="sm:col-span-3">
+          <Select v-model="form.seller_active_option as any">
+            <SelectTrigger>
+              <SelectValue :placeholder="t('tasks.form.sellerActive.placeholder')" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__none__">{{ t('tasks.form.sellerActive.options.none') }}</SelectItem>
+              <SelectItem value="1 小时内">{{ t('tasks.form.sellerActive.options.within1Hour') }}</SelectItem>
+              <SelectItem value="24 小时内">{{ t('tasks.form.sellerActive.options.within24Hours') }}</SelectItem>
+              <SelectItem value="3 天内">{{ t('tasks.form.sellerActive.options.within3Days') }}</SelectItem>
+              <SelectItem value="7 天内">{{ t('tasks.form.sellerActive.options.within7Days') }}</SelectItem>
+            </SelectContent>
+          </Select>
+          <p class="text-xs text-gray-500 mt-1">
+            {{ t('tasks.form.sellerActive.hint') }}
+          </p>
+        </div>
+      </div>
         <Label class="sm:text-right">{{ t('tasks.form.region') }}</Label>
         <div class="space-y-1 sm:col-span-3">
           <TaskRegionSelector v-model="form.region as any" />
