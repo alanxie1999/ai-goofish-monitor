@@ -61,6 +61,7 @@ from src.services.search_pagination import (
     advance_search_page,
     is_search_results_response,
 )
+from src.services.auto_order_service import AutoOrderService
 
 
 class RiskControlError(Exception):
@@ -464,6 +465,12 @@ async def scrape_xianyu(task_config: dict, debug_limit: int = 0):
     if new_publish_option == "__none__":
         new_publish_option = ""
     region_filter = (task_config.get("region") or "").strip()
+    
+    # 自动下单配置
+    auto_order_enabled = task_config.get("auto_order_enabled", False)
+    auto_order_target_price = task_config.get("auto_order_target_price")
+    auto_order_action = task_config.get("auto_order_action", "notify_only")
+    auto_order_service = AutoOrderService() if auto_order_enabled else None
 
     processed_links = set()
     history_run_id = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -605,6 +612,8 @@ async def scrape_xianyu(task_config: dict, debug_limit: int = 0):
                 ai_analyzer=get_ai_analysis,
                 notifier=send_ntfy_notification,
                 saver=save_to_jsonl,
+                auto_order_service=auto_order_service,
+                task_config=task_config,
             )
 
             # 增强反检测脚本（模拟真实移动设备）
