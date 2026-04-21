@@ -23,8 +23,24 @@
 ![结果查看](static/img_2.png)
 ![通知推送](static/img_3.png)
 
+## 📚 安装文档
+
+| 部署方式 | 文档 | 适用场景 |
+|---------|------|---------|
+| 🐳 **Docker 部署** | [Docker 安装指南](DOCKER_INSTALL.md) | 推荐，快速部署，环境隔离，一键更新 |
+| 💻 **手动部署** | [手动安装指南](MANUAL_INSTALL.md) | 自定义环境，开发调试，系统服务集成 |
+
+- **快速更新**：[Docker 一键更新脚本说明](DOCKER_UPDATE.md)
+- **故障排查**：[常见问题与解决方案](TROUBLESHOOTING.md)
+- **高级功能**：[自动下单功能配置](AUTO_ORDER_FEATURE.md) | [卖家活跃时间检测](SELLER_ACTIVE_FEATURE.md)
+
+---
+
 ## 🐳 Docker 部署（推荐）
 
+详细步骤请查看 **[Docker 安装指南](DOCKER_INSTALL.md)**
+
+**快速启动：**
 ```bash
 git clone https://github.com/Usagi-org/ai-goofish-monitor && cd ai-goofish-monitor
 cp .env.example .env
@@ -123,6 +139,8 @@ docker compose up -d
 
 
 ## 开发者开发
+
+详细步骤请查看 **[手动安装指南](MANUAL_INSTALL.md)**
 
 ### 环境要求
 
