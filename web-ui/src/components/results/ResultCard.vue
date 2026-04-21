@@ -20,10 +20,10 @@ interface Props {
 const props = defineProps<Props>()
 const { t } = useI18n()
 
-const info = props.item.商品信息
-const seller = props.item.卖家信息
-const ai = props.item.ai_analysis
-const priceInsight = props.item.price_insight
+const info = props.item["商品信息"]
+const seller = props.item["卖家信息"]
+const ai = props.item["ai_analysis"]
+const priceInsight = props.item["price_insight"]
 
 const isRecommended = ai?.is_recommended === true
 const recommendationStatus = computed(() => {
@@ -32,9 +32,9 @@ const recommendationStatus = computed(() => {
   return { label: t('results.card.pending'), color: 'bg-amber-500', icon: AlertCircle, text: 'text-amber-600', bg: 'bg-amber-50' }
 })
 
-const imageUrl = info.商品图片列表?.[0] || info.商品主图链接 || ''
-const crawlTime = props.item.爬取时间
-  ? formatDateTime(props.item.爬取时间, { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
+const imageUrl = info?.["商品图片列表"]?.[0] || info?.["商品主图链接"] || ''
+const crawlTime = props.item["爬取时间"]
+  ? formatDateTime(props.item["爬取时间"], { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' })
   : t('common.unknown')
 const matchScore = ai?.value_score ?? 0
 
@@ -49,7 +49,7 @@ const expanded = ref(false)
       <img
         v-else
         :src="imageUrl"
-        :alt="info.商品标题"
+        :alt="info?.['商品标题']"
         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         loading="lazy"
       />
@@ -61,7 +61,7 @@ const expanded = ref(false)
       </div>
       <div class="absolute top-3 right-3">
          <a
-           :href="info.商品链接"
+           :href="info?.['商品链接']"
            target="_blank"
            rel="noopener noreferrer"
            :aria-label="t('results.card.detail')"
@@ -75,14 +75,14 @@ const expanded = ref(false)
     <CardHeader class="p-4 pb-2">
       <div class="flex justify-between items-start gap-3">
         <CardTitle class="text-base font-semibold text-slate-800 line-clamp-2 leading-snug flex-grow h-10">
-          <a :href="info.商品链接" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">
-            {{ info.商品标题 }}
+          <a :href="info?.['商品链接']" target="_blank" rel="noopener noreferrer" class="hover:text-primary transition-colors">
+            {{ info?.['商品标题'] }}
           </a>
         </CardTitle>
       </div>
       <div class="flex items-baseline gap-1 mt-2">
-        <span class="text-2xl font-bold text-rose-600 tracking-tight">{{ info.当前售价 }}</span>
-        <span v-if="info['商品原价']" class="text-xs text-slate-400 line-through mb-1">{{ info['商品原价'] }}</span>
+        <span class="text-2xl font-bold text-rose-600 tracking-tight">{{ info?.['当前售价'] }}</span>
+        <span v-if="info?.['商品原价']" class="text-xs text-slate-400 line-through mb-1">{{ info['商品原价'] }}</span>
       </div>
     </CardHeader>
 
@@ -145,19 +145,19 @@ const expanded = ref(false)
     </CardContent>
 
     <CardFooter class="px-4 py-3 bg-slate-50/30 border-t border-slate-100/60 flex items-center justify-between text-[10px]">
-      <div class="flex items-center gap-3 text-slate-400">
-        <div class="flex items-center gap-1">
-          <User class="w-3 h-3" />
-          <span class="truncate max-w-[60px]">{{ seller.卖家昵称 || info.卖家昵称 || t('results.card.anonymous') }}</span>
+        <div class="flex items-center gap-3 text-slate-400">
+          <div class="flex items-center gap-1">
+            <User class="w-3 h-3" />
+            <span class="truncate max-w-[60px]">{{ seller?.['卖家昵称'] || info?.['卖家昵称'] || t('results.card.anonymous') }}</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <Clock class="w-3 h-3" />
+            <span>{{ crawlTime }}</span>
+          </div>
         </div>
-        <div class="flex items-center gap-1">
-          <Clock class="w-3 h-3" />
-          <span>{{ crawlTime }}</span>
-        </div>
-      </div>
-      <a :href="info.商品链接" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-primary font-bold hover:gap-1.5 transition-all">
-        {{ t('results.card.detail') }} <ExternalLink class="w-3 h-3" />
-      </a>
+        <a :href="info?.['商品链接']" target="_blank" rel="noopener noreferrer" class="flex items-center gap-1 text-primary font-bold hover:gap-1.5 transition-all">
+          {{ t('results.card.detail') }} <ExternalLink class="w-3 h-3" />
+        </a>
     </CardFooter>
   </Card>
 </template>

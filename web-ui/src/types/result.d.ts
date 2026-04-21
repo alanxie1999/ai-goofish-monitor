@@ -10,6 +10,51 @@ export interface ResultItem {
   keyword_hit_count: number;
   publish_time?: string;
   seller_nickname?: string;
+  "商品信息"?: ProductInfo;
+  "卖家信息"?: SellerInfo;
+  "ai_analysis"?: AIAnalysis;
+  "price_insight"?: PriceReference;
+  "爬取时间"?: string;
+}
+
+export interface RawResultItem extends Record<string, any> {
+  "爬取时间"?: string;
+  "商品信息"?: ProductInfo;
+  "卖家信息"?: SellerInfo;
+  "ai_analysis"?: AIAnalysis;
+  "价格参考"?: PriceReference;
+}
+
+export interface ResultInsights {
+  market_summary: {
+    avg_price?: number;
+    min_price?: number;
+    max_price?: number;
+    median_price?: number;
+    sample_count?: number;
+    snapshot_time?: string;
+    [key: string]: any;
+  };
+  history_summary: {
+    unique_items?: number;
+    avg_price?: number;
+    min_price?: number;
+    max_price?: number;
+    median_price?: number;
+    sample_count?: number;
+    [key: string]: any;
+  };
+  daily_trend: Array<{
+    day?: string;
+    avg_price?: number;
+    min_price?: number;
+    max_price?: number;
+    median_price?: number;
+    item_count?: number;
+    [key: string]: any;
+  }>;
+  latest_snapshot_at?: string;
+  [key: string]: any;
 }
 
 export interface RawResultItem extends Record<string, any> {

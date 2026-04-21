@@ -3,9 +3,9 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 interface TrendPoint {
-  day: string
-  avg_price: number | null
-  median_price: number | null
+  day?: string
+  avg_price?: number | null
+  median_price?: number | null
 }
 
 const props = defineProps<{
@@ -59,8 +59,8 @@ function buildPath(values: Array<number | null>) {
   return commands.join(' ')
 }
 
-const avgPath = computed(() => buildPath(validPoints.value.map((point) => point.avg_price)))
-const medianPath = computed(() => buildPath(validPoints.value.map((point) => point.median_price)))
+const avgPath = computed(() => buildPath(validPoints.value.map((point) => point.avg_price ?? null)))
+const medianPath = computed(() => buildPath(validPoints.value.map((point) => point.median_price ?? null)))
 const areaPath = computed(() => {
   if (!avgPath.value || validPoints.value.length === 0) return ''
   const firstX = resolveX(0)
@@ -116,10 +116,11 @@ const areaPath = computed(() => {
         <path :d="avgPath" fill="none" stroke="#0284c7" stroke-width="4" stroke-linecap="round" />
         <path :d="medianPath" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 6" stroke-linecap="round" />
 
-        <g v-for="(point, index) in validPoints" :key="point.day">
-          <circle :cx="resolveX(index)" :cy="resolveY(point.avg_price as number)" r="5" fill="#0284c7" />
-          <circle :cx="resolveX(index)" :cy="resolveY(point.median_price as number)" r="4" fill="#f59e0b" />
+        <g v-for="(point, index) in validPoints" :key="point.day || index">
+          <circle v-if="point.avg_price != null" :cx="resolveX(index)" :cy="resolveY(point.avg_price)" r="5" fill="#0284c7" />
+          <circle v-if="point.median_price != null" :cx="resolveX(index)" :cy="resolveY(point.median_price)" r="4" fill="#f59e0b" />
           <text
+            v-if="point.day"
             :x="resolveX(index)"
             :y="chartHeight - 6"
             text-anchor="middle"
