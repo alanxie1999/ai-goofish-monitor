@@ -627,7 +627,7 @@ if [ ! -f "requirements.txt" ]; then
 fi
 
 echo "正在安装 Python 依赖..."
-python3 -m pip install -r requirements.txt --quiet
+python3 -m pip install -r requirements.txt --quiet --break-system-packages
 echo -e "${GREEN}✓ Python 依赖安装完成${NC}"
 
 # 3. 构建前端
