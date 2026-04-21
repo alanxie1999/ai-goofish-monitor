@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>测试任务创建 API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #response { background: #f5f5f5; padding: 15px; border-radius: 4px; margin-top: 20px; white-space: pre-wrap; word-wrap: break-word; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>测试任务创建 API</h1>
+    
+    <div class="form-group">
+        <label for="baseUrl">API 基础地址:</label>
+        <input type="text" id="baseUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+    </div>
+    
+    <div class="form-group">
+        <label for="taskName">任务名称:</label>
+        <input type="text" id="taskName" value="测试任务" placeholder="例如：iPhone 15">
+    </div>
+    
+    <div class="form-group">
+        <label for="keyword">搜索关键词 (必填):</label>
+        <input type="text" id="keyword" value="测试商品" placeholder="例如：iPhone 15">
+    </div>
+    
+    <div class="form-group">
+        <label for="decisionMode">决策模式:</label>
+        <select id="decisionMode">
+            <option value="keyword">关键词模式</option>
+            <option value="ai">AI 模式</option>
+        </select>
+    </div>
+    
+    <div class="form-group">
+        <label for="description">需求描述 (AI 模式必填):</label>
+        <textarea id="description" rows="3" placeholder="描述你需要的商品特征...">测试商品描述</textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="keywordRules">关键词规则 (每行一个，关键词模式用):</label>
+        <textarea id="keywordRules" rows="3" placeholder="例如：&#10;全新&#10;包邮&#10;二手">测试&#10;包邮</textarea>
+    </div>
+    
+    <button onclick="testCreateTask()">发送测试请求</button>
+    
+    <div id="response"></div>
+
+    <script>
+        async function testCreateTask() {
+            const baseUrl = document.getElementById('baseUrl').value;
+            const taskName = document.getElementById('taskName').value;
+            const keyword = document.getElementById('keyword').value;
+            const decisionMode = document.getElementById('decisionMode').value;
+            const description = document.getElementById('description').value;
+            const keywordRulesText = document.getElementById('keywordRules').value;
+            
+            const responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = '正在发送请求...';
+            responseDiv.className = '';
+            
+            // 解析关键词规则
+            const keywordRules = keywordRulesText
+                .split(/\n,/)
+                .map(item => item.trim())
+                .filter(item => item.length > 0);
+            
+            // 构建请求数据
+            const requestData = {
+                task_name: taskName,
+                keyword: keyword,
+                decision_mode: decisionMode,
+                description: decisionMode === 'ai' ? description : '',
+                keyword_rules: decisionMode === 'keyword' ? keywordRules : [],
+                analyze_images: true,
+                personal_only: true,
+                max_pages: 3,
+                free_shipping: true,
+                account_strategy: 'auto'
+            };
+            
+            console.log('Request Payload:', requestData);
+            
+            try {
+                const url = `${baseUrl}/api/tasks/generate`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                const resultText = `请求地址：${url}
+
+请求方法：POST
+
+请求头:
+  Content-Type: application/json
+
+请求体 (Request Payload):
+${JSON.stringify(requestData, null, 2)}
+
+响应状态码：${response.status} ${response.ok ? '✓' : '✗'}
+
+响应体 (Response):
+${JSON.stringify(data, null, 2)}`;
+                
+                responseDiv.innerHTML = resultText;
+                responseDiv.className = response.ok ? 'success' : 'error';
+                
+            } catch (error) {
+                responseDiv.innerHTML = `请求失败：${error.message}
+
+可能原因：
+1. 后端服务未启动
+2. 地址不正确
+3. 网络连接问题
+4. CORS 跨域限制（需要在同一域名下访问）`;
+                responseDiv.className = 'error';
+            }
+        }
+    </script>
+</body>
+</html>

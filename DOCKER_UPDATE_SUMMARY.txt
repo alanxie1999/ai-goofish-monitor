@@ -1,0 +1,30 @@
+✅ Docker 部署更新指南已创建！
+
+文档位置：
+- /workspace/DOCKER_UPDATE.md - 完整更新指南
+- /workspace/INSTALLATION.md - 完整安装部署文档（已上传仓库）
+
+快速更新命令（在您的服务器上执行）：
+
+cd /your/project/path && \
+git pull origin master && \
+docker compose down && \
+docker rmi $(docker images | grep ai-goofish-monitor | awk '{print $3}') || true && \
+docker builder prune -f && \
+docker compose build --no-cache && \
+docker compose up -d && \
+docker compose logs --tail=30 app
+
+============================================================
+重要提示：
+1. 必须使用 --no-cache 参数重新构建
+2. 必须删除旧镜像（docker rmi）
+3. 必须强制刷新浏览器（Ctrl+Shift+R）
+============================================================
+
+验证方法：
+1. 访问 http://your-server:8000
+2. 按 Ctrl+Shift+R 强制刷新
+3. 创建新任务，在"价格范围"下方找到"🎯 自动下单"选项
+
+文档已上传到 GitHub 仓库，随时可以查看！
