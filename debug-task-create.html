@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>调试任务创建</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        .section { margin: 20px 0; padding: 15px; background: #2d2d30; border-radius: 5px; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; background: #0e639c; color: white; border: none; }
+        textarea { width: 100%; height: 300px; background: #1e1e1e; color: #d4d4d4; border: 1px solid #3c3c3c; }
+        select { padding: 8px; margin: 5px; background: #3c3c3c; color: white; border: 1px solid #555; }
+        input { padding: 8px; margin: 5px; background: #3c3c3c; color: white; border: 1px solid #555; width: 300px; }
+        .error { color: #f48771; }
+        .success { color: #89d185; }
+    </style>
+</head>
+<body>
+    <h1>🔍 任务创建调试工具</h1>
+    
+    <div class="section">
+        <h2>1. 配置</h2>
+        <div>
+            <label>API 地址:</label><br>
+            <input type="text" id="apiUrl" value="http://localhost:8000" style="width: 400px;">
+        </div>
+        <div>
+            <label>任务名称:</label><br>
+            <input type="text" id="taskName" value="测试自动下单" style="width: 400px;">
+        </div>
+        <div>
+            <label>关键词:</label><br>
+            <input type="text" id="keyword" value="测试商品" style="width: 400px;">
+        </div>
+        <div>
+            <label>决策模式:</label><br>
+            <select id="decisionMode">
+                <option value="keyword">关键词模式</option>
+                <option value="ai">AI 模式</option>
+            </select>
+        </div>
+        <div>
+            <label>自动下单:</label><br>
+            <select id="autoOrderEnabled" onchange="toggleAutoOrder()">
+                <option value="false">关闭</option>
+                <option value="true">开启</option>
+            </select>
+        </div>
+        <div id="autoOrderFields" style="display:none;">
+            <label>目标价格:</label><br>
+            <input type="text" id="targetPrice" value="100">
+            <br>
+            <label>操作:</label><br>
+            <select id="autoOrderAction">
+                <option value="notify_only">仅通知</option>
+                <option value="generate_link">生成链接</option>
+                <option value="auto_buy">自动购买</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>2. 发送请求</h2>
+        <button onclick="testCreate()">测试创建任务</button>
+        <button onclick="clearLog()">清空日志</button>
+    </div>
+    
+    <div class="section">
+        <h2>3. 请求数据 (Request Payload)</h2>
+        <textarea id="requestLog" readonly></textarea>
+    </div>
+    
+    <div class="section">
+        <h2>4. 响应数据 (Response)</h2>
+        <textarea id="responseLog" readonly></textarea>
+    </div>
+
+    <script>
+        function toggleAutoOrder() {
+            const enabled = document.getElementById('autoOrderEnabled').value === 'true';
+            document.getElementById('autoOrderFields').style.display = enabled ? 'block' : 'none';
+        }
+
+        function log(msg, type = '') {
+            const el = document.getElementById('requestLog');
+            el.value += msg + '\n';
+            if (type) el.classList.add(type);
+        }
+
+        function clearLog() {
+            document.getElementById('requestLog').value = '';
+            document.getElementById('responseLog').value = '';
+        }
+
+        async function testCreate() {
+            clearLog();
+            const baseUrl = document.getElementById('apiUrl').value;
+            const autoOrderEnabled = document.getElementById('autoOrderEnabled').value === 'true';
+            
+            const requestData = {
+                task_name: document.getElementById('taskName').value,
+                keyword: document.getElementById('keyword').value,
+                decision_mode: document.getElementById('decisionMode').value,
+                description: '',
+                analyze_images: true,
+                personal_only: true,
+                max_pages: 3,
+                free_shipping: true,
+                account_strategy: 'auto',
+                cron: null,
+                min_price: null,
+                max_price: null,
+                new_publish_option: null,
+                region: null,
+                keyword_rules: [],
+                auto_order_enabled: autoOrderEnabled,
+                auto_order_target_price: autoOrderEnabled ? document.getElementById('targetPrice').value : null,
+                auto_order_action: autoOrderEnabled ? document.getElementById('autoOrderAction').value : 'notify_only'
+            };
+
+            log('=== 请求配置 ===');
+            log(`URL: ${baseUrl}/api/tasks/generate`);
+            log(`Method: POST`);
+            log(`Content-Type: application/json\n`);
+            
+            log('=== Request Payload ===');
+            log(JSON.stringify(requestData, null, 2));
+            
+            try {
+                log('\n=== 发送请求... ===\n');
+                
+                const response = await fetch(`${baseUrl}/api/tasks/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const responseText = await response.text();
+                let responseData;
+                try {
+                    responseData = JSON.parse(responseText);
+                } catch (e) {
+                    responseData = responseText;
+                }
+                
+                const respLog = document.getElementById('responseLog');
+                respLog.value = `=== 响应状态 ===\n`;
+                respLog.value += `Status: ${response.status} ${response.ok ? '✓ Success' : '✗ Error'}\n`;
+                respLog.value += `Headers: ${JSON.stringify(Object.fromEntries(response.headers), null, 2)}\n\n`;
+                respLog.value += `=== 响应体 ===\n`;
+                respLog.value += JSON.stringify(responseData, null, 2);
+                
+                if (response.ok) {
+                    respLog.classList.remove('error');
+                    respLog.classList.add('success');
+                } else {
+                    respLog.classList.remove('success');
+                    respLog.classList.add('error');
+                }
+                
+            } catch (error) {
+                const respLog = document.getElementById('responseLog');
+                respLog.value = `=== 请求失败 ===\n错误信息：${error.message}\n\n`;
+                respLog.value += `可能原因:\n`;
+                respLog.value += `1. 后端服务未启动\n`;
+                respLog.value += `2. API 地址错误\n`;
+                respLog.value += `3. 网络连接问题\n`;
+                respLog.value += `4. CORS 跨域限制 (需要在同一域名下访问)\n`;
+                respLog.classList.add('error');
+            }
+        }
+    </script>
+</body>
+</html>
