@@ -257,7 +257,15 @@ function handleSubmit() {
   }
   
   // 确保自动下单字段被包含
-  if (!submitData.auto_order_enabled) {
+  if (submitData.auto_order_enabled) {
+    // 将目标价格转换为字符串
+    if (submitData.auto_order_target_price !== undefined && submitData.auto_order_target_price !== null) {
+      submitData.auto_order_target_price = String(submitData.auto_order_target_price)
+    }
+    if (!submitData.auto_order_action) {
+      submitData.auto_order_action = 'notify_only'
+    }
+  } else {
     submitData.auto_order_enabled = false
     submitData.auto_order_target_price = null
     submitData.auto_order_action = 'notify_only'

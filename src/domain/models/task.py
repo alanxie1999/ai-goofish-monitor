@@ -191,7 +191,7 @@ class TaskCreate(BaseModel):
     def normalize_legacy_keyword_payload(cls, values):
         return _normalize_payload_keywords(values)
 
-    @field_validator("min_price", "max_price", mode="before")
+    @field_validator("min_price", "max_price", "auto_order_target_price", mode="before")
     @classmethod
     def convert_price_to_str(cls, value):
         return _normalize_price_value(value)
@@ -262,7 +262,7 @@ class TaskUpdate(BaseModel):
     def normalize_legacy_keyword_payload(cls, values):
         return _normalize_payload_keywords(values)
 
-    @field_validator("min_price", "max_price", mode="before")
+    @field_validator("min_price", "max_price", "auto_order_target_price", mode="before")
     @classmethod
     def convert_price_to_str(cls, value):
         return _normalize_price_value(value)
@@ -328,7 +328,7 @@ class TaskGenerateRequest(BaseModel):
     def normalize_legacy_keyword_payload(cls, values):
         return _normalize_payload_keywords(values)
 
-    @field_validator("min_price", "max_price", mode="before")
+    @field_validator("min_price", "max_price", "auto_order_target_price", mode="before")
     @classmethod
     def convert_price_to_str(cls, value):
         return _normalize_price_value(value)
