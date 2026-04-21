@@ -107,6 +107,330 @@ case "$OS_FAMILY" in
 esac
 
 if [ "$has_browser" = false ]; then
+    MISSING_ITEMS+=("浏览器 (Chrome 或 Edge)")
+fi
+
+# 自动安装函数
+install_dependencies_macos() {
+    echo -e "${YELLOW}检测到 macOS 系统，开始自动安装依赖...${NC}"
+    
+    # 检查 Homebrew
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "正在安装 Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+    
+    # 安装 Python
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "正在安装 Python..."
+        brew install python@3.11
+    fi
+    
+    # 安装 Node.js
+    if ! command -v node >/dev/null 2>&1; then
+        echo "正在安装 Node.js..."
+        brew install node
+    fi
+    
+    # 安装 Playwright
+    if ! python3 -m playwright --version >/dev/null 2>&1; then
+        echo "正在安装 Playwright..."
+        python3 -m pip install playwright
+        python3 -m playwright install chromium
+    fi
+    
+    # 安装浏览器
+    if [ "$has_browser" = false ]; then
+        echo "正在安装 Chrome 浏览器..."
+        brew install --cask google-chrome
+    fi
+    
+    echo -e "${GREEN}✓ macOS 依赖安装完成${NC}"
+}
+
+install_dependencies_linux_deb() {
+    echo -e "${YELLOW}检测到 Debian/Ubuntu 系统，开始自动安装依赖...${NC}"
+    
+    # 更新包索引
+    echo "更新包索引..."
+    sudo apt-get update
+    
+    # 安装 Python
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "正在安装 Python..."
+        sudo apt-get install -y python3 python3-pip python3-venv
+    fi
+    
+    # 安装 Node.js LTS
+    if ! command -v node >/dev/null 2>&1; then
+        echo "正在安装 Node.js LTS..."
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    fi
+    
+    # 安装 Playwright
+    if ! python3 -m playwright --version >/dev/null 2>&1; then
+        echo "正在安装 Playwright..."
+        python3 -m pip install playwright --break-system-packages
+        python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
+    fi
+    
+    # 安装浏览器
+    if [ "$has_browser" = false ]; then
+        echo "正在安装 Chrome 浏览器..."
+        sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+    fi
+    
+    echo -e "${GREEN}✓ Debian/Ubuntu 依赖安装完成${NC}"
+}
+
+install_dependencies_linux_rpm() {
+    echo -e "${YELLOW}检测到 RHEL/CentOS/Fedora 系统，开始自动安装依赖...${NC}"
+    
+    # 安装 Python
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "正在安装 Python..."
+        sudo dnf install -y python3 python3-pip
+    fi
+    
+    # 安装 Node.js
+    if ! command -v node >/dev/null 2>&1; then
+        echo "正在安装 Node.js..."
+        sudo dnf install -y nodejs
+    fi
+    
+    # 安装 Playwright
+    if ! python3 -m playwright --version >/dev/null 2>&1; then
+        echo "正在安装 Playwright..."
+        python3 -m pip install playwright --break-system-packages
+        python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
+    fi
+    
+    # 安装浏览器
+    if [ "$has_browser" = false ]; then
+        echo "正在安装 Chrome 浏览器..."
+        sudo dnf install -y chromium
+    fi
+    
+    echo -e "${GREEN}✓ RHEL/CentOS/Fedora 依赖安装完成${NC}"
+}
+
+install_dependencies_linux_arch() {
+    echo -e "${YELLOW}检测到 Arch Linux 系统，开始自动安装依赖...${NC}"
+    
+    # 安装 Python
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "正在安装 Python..."
+        sudo pacman -S --noconfirm python python-pip
+    fi
+    
+    # 安装 Node.js
+    if ! command -v node >/dev/null 2>&1; then
+        echo "正在安装 Node.js..."
+        sudo pacman -S --noconfirm nodejs npm
+    fi
+    
+    # 安装 Playwright
+    if ! python3 -m playwright --version >/dev/null 2>&1; then
+        echo "正在安装 Playwright..."
+        python3 -m pip install playwright --break-system-packages
+        python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
+    fi
+    
+    # 安装浏览器
+    if [ "$has_browser" = false ]; then
+        echo "正在安装 Chrome 浏览器..."
+        sudo pacman -S --noconfirm chromium
+    fi
+    
+    echo -e "${GREEN}✓ Arch Linux 依赖安装完成${NC}"
+}
+
+install_dependencies_wsl() {
+    echo -e "${YELLOW}检测到 WSL 系统，开始自动安装依赖...${NC}"
+    
+    # 更新包索引
+    echo "更新包索引..."
+    sudo apt-get update
+    
+    # 安装 Python
+    if ! command -v python3 >/dev/null 2>&1; then
+        echo "正在安装 Python..."
+        sudo apt-get install -y python3 python3-pip python3-venv
+    fi
+    
+    # 安装 Node.js LTS
+    if ! command -v node >/dev/null 2>&1; then
+        echo "正在安装 Node.js LTS..."
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt-get install -y nodejs
+    fi
+    
+    # 安装 Playwright
+    if ! python3 -m playwright --version >/dev/null 2>&1; then
+        echo "正在安装 Playwright..."
+        python3 -m pip install playwright --break-system-packages
+        python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
+    fi
+    
+    # 安装浏览器
+    if [ "$has_browser" = false ]; then
+        echo "正在安装 Chrome 浏览器..."
+        sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
+    fi
+    
+    echo -e "${GREEN}✓ WSL 依赖安装完成${NC}"
+}
+
+# 询问用户是否自动安装
+if [ "${#MISSING_ITEMS[@]}" -ne 0 ]; then
+    echo -e "${RED}✗ 检测到缺失的环境/依赖:${NC}"
+    for item in "${MISSING_ITEMS[@]}"; do
+        echo "  - $item"
+    done
+    echo ""
+    
+    case "$OS_FAMILY" in
+        macos)
+            echo -e "${YELLOW}是否自动安装缺失的依赖？(y/n)${NC}"
+            read -r response
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                install_dependencies_macos
+            else
+                print_solution_macos
+                exit 1
+            fi
+            ;;
+        linux)
+            if [ "$LINUX_ID" = "arch" ] || echo "$LINUX_LIKE" | grep -qi "arch"; then
+                echo -e "${YELLOW}是否自动安装缺失的依赖？(y/n)${NC}"
+                read -r response
+                if [[ "$response" =~ ^[Yy]$ ]]; then
+                    install_dependencies_linux_arch
+                else
+                    print_solution_linux_arch
+                    exit 1
+                fi
+            elif [ "$LINUX_ID" = "fedora" ] || [ "$LINUX_ID" = "rhel" ] || [ "$LINUX_ID" = "centos" ] || echo "$LINUX_LIKE" | grep -qi "rhel\|fedora"; then
+                echo -e "${YELLOW}是否自动安装缺失的依赖？(y/n)${NC}"
+                read -r response
+                if [[ "$response" =~ ^[Yy]$ ]]; then
+                    install_dependencies_linux_rpm
+                else
+                    print_solution_linux_rpm
+                    exit 1
+                fi
+            else
+                echo -e "${YELLOW}是否自动安装缺失的依赖？(y/n)${NC}"
+                read -r response
+                if [[ "$response" =~ ^[Yy]$ ]]; then
+                    install_dependencies_linux_deb
+                else
+                    print_solution_linux_deb
+                    exit 1
+                fi
+            fi
+            ;;
+        wsl)
+            echo -e "${YELLOW}是否自动安装缺失的依赖？(y/n)${NC}"
+            read -r response
+            if [[ "$response" =~ ^[Yy]$ ]]; then
+                install_dependencies_wsl
+            else
+                print_solution_wsl
+                exit 1
+            fi
+            ;;
+        windows)
+            print_solution_windows
+            exit 1
+            ;;
+        *)
+            print_solution_generic
+            exit 1
+            ;;
+    esac
+    
+    echo -e "\n${GREEN}✓ 依赖安装完成，继续后续步骤...${NC}"
+fi
+
+case "$(uname -s 2>/dev/null || echo unknown)" in
+    Darwin)
+        OS_FAMILY="macos"
+        ;;
+    Linux)
+        if grep -qi microsoft /proc/version 2>/dev/null; then
+            OS_FAMILY="wsl"
+        else
+            OS_FAMILY="linux"
+        fi
+        ;;
+    MINGW*|MSYS*|CYGWIN*)
+        OS_FAMILY="windows"
+        ;;
+    *)
+        OS_FAMILY="unknown"
+        ;;
+esac
+
+MISSING_ITEMS=()
+
+if ! command -v python3 >/dev/null 2>&1; then
+    MISSING_ITEMS+=("python3(>=3.10)")
+else
+    if ! python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' >/dev/null 2>&1; then
+        MISSING_ITEMS+=("python3(>=3.10)")
+    fi
+fi
+
+if ! python3 -m pip --version >/dev/null 2>&1; then
+    MISSING_ITEMS+=("pip")
+fi
+
+if ! command -v node >/dev/null 2>&1; then
+    MISSING_ITEMS+=("node")
+fi
+
+if ! command -v npm >/dev/null 2>&1; then
+    MISSING_ITEMS+=("npm")
+fi
+
+if ! python3 -m playwright --version >/dev/null 2>&1; then
+    MISSING_ITEMS+=("playwright")
+fi
+
+has_browser=false
+case "$OS_FAMILY" in
+    macos)
+        if [ -d "/Applications/Google Chrome.app" ] || [ -d "/Applications/Microsoft Edge.app" ]; then
+            has_browser=true
+        fi
+        ;;
+    linux|wsl)
+        if command -v google-chrome >/dev/null 2>&1 \
+            || command -v google-chrome-stable >/dev/null 2>&1 \
+            || command -v chromium >/dev/null 2>&1 \
+            || command -v chromium-browser >/dev/null 2>&1 \
+            || command -v microsoft-edge >/dev/null 2>&1 \
+            || command -v microsoft-edge-stable >/dev/null 2>&1; then
+            has_browser=true
+        fi
+        ;;
+    windows)
+        if [ -d "/c/Program Files/Google/Chrome/Application" ] \
+            || [ -d "/c/Program Files (x86)/Google/Chrome/Application" ] \
+            || [ -d "/c/Program Files (x86)/Microsoft/Edge/Application" ] \
+            || [ -d "/c/Program Files/Microsoft/Edge/Application" ]; then
+            has_browser=true
+        fi
+        ;;
+esac
+
+if [ "$has_browser" = false ]; then
     MISSING_ITEMS+=("浏览器(Chrome 或 Edge)")
 fi
 
