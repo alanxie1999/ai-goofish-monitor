@@ -135,8 +135,9 @@ install_dependencies_macos() {
     # 安装 Playwright
     if ! python3 -m playwright --version >/dev/null 2>&1; then
         echo "正在安装 Playwright..."
-        python3 -m pip install playwright
+        python3 -m pip install playwright --break-system-packages
         python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
     fi
     
     # 安装浏览器
@@ -358,6 +359,18 @@ if [ "${#MISSING_ITEMS[@]}" -ne 0 ]; then
     echo -e "\n${GREEN}✓ 依赖安装完成，继续后续步骤...${NC}"
 fi
 
+# 安装 Playwright 浏览器
+echo -e "\n${YELLOW}[1.5/6] 检查并安装 Playwright 浏览器...${NC}"
+if python3 -m playwright --version >/dev/null 2>&1; then
+    echo "正在安装 Playwright Chromium 浏览器..."
+    python3 -m playwright install chromium 2>&1 | tail -3
+    echo "正在安装系统依赖..."
+    python3 -m playwright install-deps chromium 2>&1 | tail -3
+    echo -e "${GREEN}✓ Playwright 浏览器安装完成${NC}"
+else
+    echo -e "${YELLOW}Playwright 未安装，已跳过浏览器安装${NC}"
+fi
+
 case "$(uname -s 2>/dev/null || echo unknown)" in
     Darwin)
         OS_FAMILY="macos"
@@ -445,6 +458,7 @@ macOS 解决办法:
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器:
    brew install --cask google-chrome
    # 或
@@ -467,7 +481,7 @@ Linux (Debian/Ubuntu) 解决办法:
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
-   python3 -m playwright install-deps chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器:
    sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
    # 或安装 Edge:
@@ -488,7 +502,7 @@ Linux (RHEL/CentOS/Fedora) 解决办法:
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
-   python3 -m playwright install-deps chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器:
    sudo dnf install -y chromium
    # 或安装 Edge:
@@ -509,7 +523,7 @@ Linux (Arch) 解决办法:
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
-   python3 -m playwright install-deps chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器:
    sudo pacman -S --noconfirm chromium
    # 或安装 Edge:
@@ -532,7 +546,7 @@ WSL 解决办法:
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
-   python3 -m playwright install-deps chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器:
    sudo apt-get install -y chromium-browser || sudo apt-get install -y chromium
    # 或在 Windows 安装 Chrome/Edge 并在 WSL 使用 Linux 版本浏览器
@@ -569,6 +583,7 @@ print_solution_generic() {
 3) 安装 Playwright:
    python3 -m pip install playwright
    python3 -m playwright install chromium
+        python3 -m playwright install-deps chromium
 4) 安装浏览器 Chrome 或 Edge
 5) 配置文件（可选）:
    cp .env.example .env
