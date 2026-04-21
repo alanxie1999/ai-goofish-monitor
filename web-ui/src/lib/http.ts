@@ -40,7 +40,20 @@ export async function http(url: string, options: FetchOptions = {}) {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.detail || `HTTP error! status: ${response.status}`)
+    let errorMessage = `HTTP error! status: ${response.status}`
+    
+    if (errorData.detail) {
+      if (Array.isArray(errorData.detail)) {
+        // 422 Validation errors
+        errorMessage = errorData.detail.map((err: any) => err.msg || JSON.stringify(err)).join('; ')
+      } else if (typeof errorData.detail === 'string') {
+        errorMessage = errorData.detail
+      } else if (typeof errorData.detail === 'object') {
+        errorMessage = JSON.stringify(errorData.detail)
+      }
+    }
+    
+    throw new Error(errorMessage)
   }
 
   // Handle 204 No Content
